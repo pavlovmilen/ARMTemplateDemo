@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCoolWebApp", "MyCoolWebApp\MyCoolWebApp.csproj", "{CFFDB952-E4E6-4D17-8353-A05A237EED8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCoolWebApp.Data", "MyCoolWebApp.Data\MyCoolWebApp.Data.csproj", "{35505F32-840A-4E78-BBFD-85380F61CD78}"
+EndProject
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "MyCoolWebApp.Deploy", "MyCoolWebApp.Deploy\MyCoolWebApp.Deploy.deployproj", "{D78F651C-03EF-4337-AE87-24FCE6585928}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CFFDB952-E4E6-4D17-8353-A05A237EED8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFFDB952-E4E6-4D17-8353-A05A237EED8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFFDB952-E4E6-4D17-8353-A05A237EED8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFFDB952-E4E6-4D17-8353-A05A237EED8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35505F32-840A-4E78-BBFD-85380F61CD78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35505F32-840A-4E78-BBFD-85380F61CD78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35505F32-840A-4E78-BBFD-85380F61CD78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35505F32-840A-4E78-BBFD-85380F61CD78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D78F651C-03EF-4337-AE87-24FCE6585928}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D78F651C-03EF-4337-AE87-24FCE6585928}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D78F651C-03EF-4337-AE87-24FCE6585928}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D78F651C-03EF-4337-AE87-24FCE6585928}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
