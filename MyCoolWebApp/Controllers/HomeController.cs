@@ -1,5 +1,7 @@
 ﻿using MyCoolWebApp.Data;
 using MyCoolWebApp.Services;
+using MyCoolWebApp.ViewModels;
+using System.Configuration;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -20,7 +22,15 @@ namespace MyCoolWebApp.Controllers
                 var data = context.Products.ToList();
             }
 
-            return View();
+            var vm = new IndexViewModel();
+            var result = ConfigurationManager.ConnectionStrings["DefaultConnection"];
+
+            if (result != null)
+            {
+                vm.ConncetionString = result.ConnectionString.Substring(0, 80);
+            }
+
+            return View(vm);
         }
 
         public ActionResult About()

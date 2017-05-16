@@ -80,44 +80,47 @@
       "name": "[parameters('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
       "location": "[resourceGroup().location]",
+      "apiVersion": "2014-04-01-preview",
+      "dependsOn": [],
       "tags": {
         "displayName": "SqlServer"
       },
-      "apiVersion": "2014-04-01-preview",
       "properties": {
         "administratorLogin": "[parameters('administratorLogin')]",
-        "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+        "version": "12.0"
       },
       "resources": [
+        {
+          "name": "AllowAllWindowsAzureIps",
+          "type": "firewallrules",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'))]"
+          ],
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          }
+        },
         {
           "name": "[parameters('databaseName')]",
           "type": "databases",
           "location": "[resourceGroup().location]",
+          "apiVersion": "2014-04-01-preview",
+          "kind": "v12.0",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'))]"
+          ],
           "tags": {
-            "displayName": "Database"
+            "displayName": "SqlDatabase"
           },
-          "apiVersion": "2014-04-01-preview",
-          "dependsOn": [
-            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'))]"
-          ],
           "properties": {
-            "edition": "[parameters('edition')]",
             "collation": "[parameters('collation')]",
-            "maxSizeBytes": "[parameters('maxSizeBytes')]",
-            "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]"
-          }
-        },
-        {
-          "type": "firewallrules",
-          "apiVersion": "2014-04-01-preview",
-          "dependsOn": [
-            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'))]"
-          ],
-          "location": "[resourceGroup().location]",
-          "name": "AllowAllWindowsAzureIps",
-          "properties": {
-            "endIpAddress": "0.0.0.0",
-            "startIpAddress": "0.0.0.0"
+            "edition": "[parameters('edition')]",
+            "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]",
+            "maxSizeBytes": "104857600"
           }
         }
       ]
@@ -150,22 +153,23 @@
         "name": "[concat(parameters('hostingPlanName'), '-web')]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
       },
-      //"resources": [
-      //  {
-      //    "apiVersion": "2015-08-01",
-      //    "type": "config",
-      //    "name": "connectionstrings",
-      //    "dependsOn": [
-      //      "[concat('Microsoft.Web/Sites/', parameters('hostingPlanName'), '-web')]"
-      //    ],
-      //    "properties": {
-      //      "DefaultConnection": {
-      //        "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('administratorLogin'), '@', parameters('sqlServerName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
-      //        "type": "SQLServer"
-      //      }
-      //    }
-      //  }
-      //]
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "type": "config",
+          "name": "connectionstrings",
+          "dependsOn": [
+            "[concat('Microsoft.Web/Sites/', parameters('hostingPlanName'), '-web')]",
+            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'))]"
+          ],
+          "properties": {
+            "DefaultConnection": {
+              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('administratorLogin'), '@', parameters('sqlServerName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
+              "type": "SQLServer"
+            }
+          }
+        }
+      ]
     }
-    ]
+  ]
   }

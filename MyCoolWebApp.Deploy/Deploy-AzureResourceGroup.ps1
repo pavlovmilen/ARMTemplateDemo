@@ -122,7 +122,7 @@ else
 	Exit
 }
 
-$webAppName = $appName + '.' + $environmentName + 'abc'
+$webAppName = $appName + '-' + $environmentName
 $sqlServerName = $appName.ToLowerInvariant() + '-' + $environmentName.ToLowerInvariant()
 
 'sql server name is: ' +  $sqlServerName
