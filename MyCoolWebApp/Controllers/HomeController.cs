@@ -27,7 +27,7 @@ namespace MyCoolWebApp.Controllers
 
             if (result != null)
             {
-                vm.ConncetionString = result.ConnectionString.Substring(0, 80);
+                vm.ConncetionString = result.ConnectionString;
             }
 
             return View(vm);

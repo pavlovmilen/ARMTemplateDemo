@@ -69,12 +69,24 @@
       "metadata": {
         "description": "Describes the performance level for Edition"
       }
+    },
+    "storageAccountName": {
+      "type": "string"
+    },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS"
+      ]
     }
   },
+
   "variables": {
     "sqlServerName": "[concat(toLower(parameters('appName')), '-', toLower(parameters('customerName')), '-', toLower(parameters('environmentName')) )]",
     "hostingPlanName": "[concat(parameters('appName'), '-', parameters('customerName'), '-', parameters('environmentName'))]",
-    "databaseName": "[concat(parameters('appName'), '-', parameters('customerName'), '-', parameters('environmentName'))]"
+    "databaseName": "[concat(parameters('appName'), '-', parameters('customerName'), '-', parameters('environmentName'))]",
+    "storageAccountEndpoints": "[concat('BlobEndpoint=https://',toLower(parameters('storageAccountName')),'.blob.core.windows.net/;TableEndpoint=https://', toLower(parameters('storageAccountName')), '.table.core.windows.net/;QueueEndpoint=https://',toLower(parameters('storageAccountName')),'.queue.core.windows.net/;FileEndpoint=https://', toLower(parameters('storageAccountName')),'.file.core.windows.net/')]"
   },
   "resources": [
     {
@@ -159,7 +171,8 @@
       "apiVersion": "2015-08-01",
       "type": "Microsoft.Web/sites",
       "dependsOn": [
-        "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
+        "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
       ],
       "location": "[resourceGroup().location]",
       "name": "[concat(variables('hostingPlanName'), '-web')]",
@@ -182,8 +195,36 @@
               "type": "SQLServer"
             }
           }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "dependsOn": [
+            "[concat('Microsoft.Web/Sites/', variables('hostingPlanName'), '-web')]",
+            "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
+          ],
+          "kind": null,
+          "location": "[resourceGroup().location]",
+          "name": "appsettings",
+          "properties": {
+            "AzureStorageConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')),  '2015-06-15').key1,';',variables('storageAccountEndpoints'))]",
+            "StorageAccountName": "[parameters('storageAccountName')]"
+          },
+          "type": "config"
         }
       ]
+    },
+    {
+      "name": "[parameters('storageAccountName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "wfmstorageAccount"
+      },
+      "properties": {
+        "accountType": "[parameters('storageAccountType')]"
+      }
     }
   ]
 }

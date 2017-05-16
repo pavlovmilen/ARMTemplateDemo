@@ -136,6 +136,9 @@ else
 $webAppName = $appName + '-' + $customerName + '-' + $environmentName 
 $sqlServerName = $appName.ToLowerInvariant() + '-' + $customerName.ToLowerInvariant() + '-' + $environmentName.ToLowerInvariant()
 
+$storageAccountName = 'wfm' + $customerName.ToLower() + $environmentName.ToLower() + 'acc'
+$storageAccountName = $storageAccountName.Replace('-', '')
+'storage account name is: ' + $storageAccountName
 'sql server name is: ' +  $sqlServerName
 
 # Create or update the resource group using the specified template file and template parameters file
@@ -145,5 +148,5 @@ New-AzureRmResourceGroupDeployment -Name ((Get-ChildItem $TemplateFile).BaseName
                                    -ResourceGroupName $ResourceGroupName `
                                    -TemplateFile $TemplateFile `
                                    -TemplateParameterFile $TemplateParametersFile `
-                                   -appName $appName -customerName $customerName -environmentName $environmentName `
+                                   -appName $appName -customerName $customerName -environmentName $environmentName -storageAccountName $storageAccountName `
                                    -Force -Verbose

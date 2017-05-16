@@ -10,6 +10,9 @@
     },
     "environmentName": {
       "value": "default"
+    },
+    "storageAccountName": {
+      "value": "default"
     }
   }
 }
