@@ -2,7 +2,15 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "hostingPlanName": {
+    "appName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "customerName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "environmentName": {
       "type": "string",
       "minLength": 1
     },
@@ -33,12 +41,6 @@
       "type": "securestring",
       "defaultValue": "myS3cureAdm!nPass"
     },
-    "sqlServerName": {
-      "type": "string"
-    },
-    "databaseName": {
-      "type": "string"
-    },
     "collation": {
       "type": "string",
       "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
@@ -51,10 +53,6 @@
         "Standard",
         "Premium"
       ]
-    },
-    "maxSizeBytes": {
-      "type": "string",
-      "defaultValue": "1073741824"
     },
     "requestedServiceObjectiveName": {
       "type": "string",
@@ -74,10 +72,13 @@
     }
   },
   "variables": {
+    "sqlServerName": "[concat(toLower(parameters('appName')), '-', toLower(parameters('customerName')), '-', toLower(parameters('environmentName')) )]",
+    "hostingPlanName": "[concat(parameters('appName'), '-', parameters('customerName'), '-', parameters('environmentName'))]",
+    "databaseName": "[concat(parameters('appName'), '-', parameters('customerName'), '-', parameters('environmentName'))]"
   },
   "resources": [
     {
-      "name": "[parameters('sqlServerName')]",
+      "name": "[variables('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
       "location": "[resourceGroup().location]",
       "apiVersion": "2014-04-01-preview",
@@ -97,7 +98,7 @@
           "location": "[resourceGroup().location]",
           "apiVersion": "2014-04-01-preview",
           "dependsOn": [
-            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'))]"
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
           ],
           "properties": {
             "startIpAddress": "0.0.0.0",
@@ -105,13 +106,26 @@
           }
         },
         {
-          "name": "[parameters('databaseName')]",
+          "name": "AllowReplIpAddress",
+          "type": "firewallrules",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+          ],
+          "properties": {
+            "startIpAddress": "31.192.100.106",
+            "endIpAddress": "31.192.100.106"
+          }
+        },
+        {
+          "name": "[variables('databaseName')]",
           "type": "databases",
           "location": "[resourceGroup().location]",
           "apiVersion": "2014-04-01-preview",
           "kind": "v12.0",
           "dependsOn": [
-            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'))]"
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
           ],
           "tags": {
             "displayName": "SqlDatabase"
@@ -126,7 +140,7 @@
       ]
     },
     {
-      "name": "[parameters('hostingPlanName')]",
+      "name": "[variables('hostingPlanName')]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[resourceGroup().location]",
       "apiVersion": "2014-06-01",
@@ -135,7 +149,7 @@
         "displayName": "appServicePlan"
       },
       "properties": {
-        "name": "[parameters('hostingPlanName')]",
+        "name": "[variables('hostingPlanName')]",
         "sku": "[parameters('appServicePlanSKU')]",
         "workerSize": "[parameters('appServicePlanWorkerSize')]",
         "numberOfWorkers": 1
@@ -145,13 +159,13 @@
       "apiVersion": "2015-08-01",
       "type": "Microsoft.Web/sites",
       "dependsOn": [
-        "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+        "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
       ],
       "location": "[resourceGroup().location]",
-      "name": "[concat(parameters('hostingPlanName'), '-web')]",
+      "name": "[concat(variables('hostingPlanName'), '-web')]",
       "properties": {
-        "name": "[concat(parameters('hostingPlanName'), '-web')]",
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+        "name": "[concat(variables('hostingPlanName'), '-web')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
       },
       "resources": [
         {
@@ -159,12 +173,12 @@
           "type": "config",
           "name": "connectionstrings",
           "dependsOn": [
-            "[concat('Microsoft.Web/Sites/', parameters('hostingPlanName'), '-web')]",
-            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'))]"
+            "[concat('Microsoft.Web/Sites/', variables('hostingPlanName'), '-web')]",
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
           ],
           "properties": {
             "DefaultConnection": {
-              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('administratorLogin'), '@', parameters('sqlServerName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
+              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('databaseName'), ';User Id=', parameters('administratorLogin'), '@', variables('sqlServerName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
               "type": "SQLServer"
             }
           }
@@ -172,4 +186,4 @@
       ]
     }
   ]
-  }
+}

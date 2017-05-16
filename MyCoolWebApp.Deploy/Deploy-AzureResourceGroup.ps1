@@ -100,7 +100,8 @@ $TemplateParametersFile = [System.IO.Path]::GetFullPath([System.IO.Path]::Combin
 #}
 
 $appName = $ResourceGroupName.Split('.')[0]
-$environmentName = $ResourceGroupName.Split('.')[1]
+$customerName = $ResourceGroupName.Split('.')[1]
+$environmentName = $ResourceGroupName.Split('.')[2]
 
 if($appName.ToLower() -cmatch "^[a-z0-9-]*$")
 {
@@ -114,16 +115,26 @@ else
 
 if($environmentName.ToLower() -cmatch "^[a-z0-9-]*$")
 {
-	'Valid customer name: ' + $environmentName
+	'Valid environment name: ' + $environmentName
 }
 else
 {
-	'Invalid customer name: ' + $environmentName
+	'Invalid environment name: ' + $environmentName
 	Exit
 }
 
-$webAppName = $appName + '-' + $environmentName
-$sqlServerName = $appName.ToLowerInvariant() + '-' + $environmentName.ToLowerInvariant()
+if($customerName.ToLower() -cmatch "^[a-z0-9-]*$")
+{
+	'Valid customer name: ' + $customerName
+}
+else
+{
+	'Invalid customer name: ' + $customerName
+	Exit
+}
+
+$webAppName = $appName + '-' + $customerName + '-' + $environmentName 
+$sqlServerName = $appName.ToLowerInvariant() + '-' + $customerName.ToLowerInvariant() + '-' + $environmentName.ToLowerInvariant()
 
 'sql server name is: ' +  $sqlServerName
 
@@ -134,5 +145,5 @@ New-AzureRmResourceGroupDeployment -Name ((Get-ChildItem $TemplateFile).BaseName
                                    -ResourceGroupName $ResourceGroupName `
                                    -TemplateFile $TemplateFile `
                                    -TemplateParameterFile $TemplateParametersFile `
-                                   -hostingPlanName $webAppName -databaseName $webAppName -sqlServerName $sqlServerName `
+                                   -appName $appName -customerName $customerName -environmentName $environmentName `
                                    -Force -Verbose
