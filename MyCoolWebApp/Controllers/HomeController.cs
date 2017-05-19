@@ -21,13 +21,15 @@ namespace MyCoolWebApp.Controllers
             {
                 var data = context.Products.ToList();
             }
-
+            var reader = new AppSettingsWebConfigReader();
             var vm = new IndexViewModel();
-            var result = ConfigurationManager.ConnectionStrings["DefaultConnection"];
+            var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"];
+            var blobStorageConnectionString = reader.ReadProperty("AzureStorageConnectionString");
 
-            if (result != null)
+            if (connectionString != null)
             {
-                vm.ConncetionString = result.ConnectionString;
+                vm.ConncetionString = connectionString.ConnectionString;
+                vm.BlobStorageConnectionString = blobStorageConnectionString;
             }
 
             return View(vm);
