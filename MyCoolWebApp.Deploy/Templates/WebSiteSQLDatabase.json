@@ -225,6 +225,17 @@
       "properties": {
         "accountType": "[parameters('storageAccountType')]"
       }
+    },
+    {
+      "name": "[concat(parameters('storageAccountName'), '/Microsoft.Authorization/myLock')]",
+      "type": "Microsoft.Storage/storageAccounts/providers/locks",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
+      ],
+      "properties": {
+        "level": "CannotDelete"
+      }
     }
   ]
 }
